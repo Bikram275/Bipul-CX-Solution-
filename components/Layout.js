@@ -22,7 +22,7 @@ export default function Layout({ children, currentView, setView, isAdmin, toggle
   const [menuSearch, setMenuSearch] = useState('');
   const [menuFilter, setMenuFilter] = useState('All');
 
-  // Handle Google Translate Initialization
+  // Handle Google Translate Initialization & Global Key Listeners
   useEffect(() => {
     window.googleTranslateElementInit = () => {
       new window.google.translate.TranslateElement({
@@ -37,6 +37,16 @@ export default function Layout({ children, currentView, setView, isAdmin, toggle
     if (window.google && window.google.translate) {
       window.googleTranslateElementInit();
     }
+
+    // Escape Key Listener to close slider
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const filteredSops = sops
@@ -46,6 +56,11 @@ export default function Layout({ children, currentView, setView, isAdmin, toggle
         const matchesCategory = menuFilter === 'All' || s.category === menuFilter;
         return matchesSearch && matchesCategory;
     });
+
+  const handleResetFilters = () => {
+    setMenuSearch('');
+    setMenuFilter('All');
+  };
 
   return html`
     <div className="min-h-screen bg-slate-50 font-sans">
@@ -92,13 +107,29 @@ export default function Layout({ children, currentView, setView, isAdmin, toggle
         </div>
         <div className="p-8 bg-slate-50 border-b space-y-6">
             <div className="relative">
-                <input type="text" placeholder="Search by name..." className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-200 rounded-2xl outline-none focus:border-indigo-500 transition-all font-bold text-lg shadow-sm" value=${menuSearch} onChange=${(e) => setMenuSearch(e.target.value)} />
+                <input type="text" placeholder="Search by name..." className="w-full pl-12 pr-12 py-4 bg-white border-2 border-slate-200 rounded-2xl outline-none focus:border-indigo-500 transition-all font-bold text-lg shadow-sm" value=${menuSearch} onChange=${(e) => setMenuSearch(e.target.value)} />
                 <${Lucide.Search} className="absolute left-4 top-4.5 text-slate-400" size=${24} />
+                
+                <!-- Refresh/Clear Search Button -->
+                ${menuSearch && html`
+                  <button 
+                    onClick=${() => setMenuSearch('')} 
+                    className="absolute right-4 top-4.5 text-slate-300 hover:text-indigo-600 transition-colors"
+                    title="Clear search"
+                  >
+                    <${Lucide.RotateCw} size=${22} className="animate-in fade-in zoom-in duration-200" />
+                  </button>
+                `}
             </div>
             
-            <!-- Category Dropdown Restored -->
+            <!-- Category Dropdown -->
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Filter by Category</label>
+              <div className="flex justify-between items-center mb-3">
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Filter by Category</label>
+                ${(menuFilter !== 'All' || menuSearch !== '') && html`
+                  <button onClick=${handleResetFilters} className="text-[10px] font-black text-indigo-500 uppercase tracking-widest hover:underline">Reset All</button>
+                `}
+              </div>
               <div className="relative">
                 <select 
                   className="w-full pl-4 pr-10 py-3.5 bg-white border-2 border-slate-200 rounded-2xl outline-none focus:border-indigo-500 transition-all font-black text-xs uppercase tracking-widest appearance-none cursor-pointer" 
