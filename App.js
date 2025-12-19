@@ -69,7 +69,6 @@ export default function App() {
       setIsLoading(true);
       const success = await deleteSOP(id);
       if (success) {
-        // Force state update by filtering local list and then re-loading to be safe
         setSops(prev => prev.filter(s => s.id !== id));
         await loadData(); 
       }
@@ -80,10 +79,10 @@ export default function App() {
   const handleImportData = async (json) => {
       setIsLoading(true);
       if (await importSOPs(json)) {
-          alert("Database successfully updated!");
+          alert("Knowledge base successfully synchronized!");
           await loadData();
       } else {
-          alert("Failed to update database. Invalid format.");
+          alert("Synchronization failed. Invalid data structure.");
       }
       setIsLoading(false);
   };
@@ -102,11 +101,20 @@ export default function App() {
 
   if (isLoading && sops.length === 0) {
       return html`
-        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-6">
-            <${Lucide.Loader2} className="animate-spin text-blue-600" size=${56} />
-            <div className="text-center">
-                <p className="font-black text-2xl text-slate-800 tracking-tight uppercase">Initializing</p>
-                <p className="text-sm font-bold mt-1 text-slate-400 uppercase tracking-widest">Connecting Data Layer</p>
+        <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-slate-500 gap-10">
+            <div className="relative">
+               <${Lucide.Loader2} className="animate-spin text-indigo-500" size=${80} />
+               <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-3 h-3 bg-rose-500 rounded-full"></div>
+               </div>
+            </div>
+            <div className="text-center space-y-4">
+                <p className="font-black text-4xl text-white tracking-tighter uppercase brand-gradient">Cx Solution By Bipul</p>
+                <div className="flex items-center justify-center gap-3">
+                   <span className="w-12 h-0.5 bg-indigo-500"></span>
+                   <p className="text-sm font-black text-slate-500 uppercase tracking-[0.5em]">Secure Authentication</p>
+                   <span className="w-12 h-0.5 bg-indigo-500"></span>
+                </div>
             </div>
         </div>`;
   }
@@ -149,24 +157,26 @@ export default function App() {
         `}
 
         ${showLoginModal && html`
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/80 backdrop-blur-xl p-4">
-                <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
-                    <div className="bg-slate-900 p-8 flex justify-between items-center text-white">
-                        <div className="flex items-center gap-4 font-black text-2xl tracking-tighter uppercase">
-                          <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                            <${Lucide.Lock} size=${20} />
-                          </div>
-                          Console Auth
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 backdrop-blur-2xl p-4">
+                <div className="bg-white rounded-[3.5rem] shadow-[0_0_100px_rgba(99,102,241,0.2)] w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-500">
+                    <div className="bg-slate-900 p-12 flex flex-col items-center text-white relative">
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-rose-500"></div>
+                        <div className="w-24 h-24 rounded-[2rem] bg-indigo-600 flex items-center justify-center shadow-2xl shadow-indigo-500/30 mb-8 transform -rotate-6">
+                            <${Lucide.ShieldEllipsis} size=${40} />
                         </div>
-                        <button onClick=${() => setShowLoginModal(false)} className="hover:bg-white/10 p-2 rounded-xl transition-colors"><${Lucide.X} size=${28} /><//>
+                        <h2 className="text-4xl font-black tracking-tighter uppercase brand-gradient">Security Gate</h2>
+                        <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.3em] mt-2">Cx Solution By Bipul</p>
                     </div>
-                    <form onSubmit=${handleLoginSubmit} className="p-10 space-y-8">
-                        <p className="text-slate-500 font-bold text-sm leading-relaxed uppercase tracking-widest">Master password required for system modifications.</p>
-                        <div>
-                          <input type="password" autoFocus className="w-full px-6 py-4 bg-slate-50 border-4 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all font-mono text-center text-2xl tracking-widest" placeholder="••••••••" value=${passwordInput} onChange=${(e) => setPasswordInput(e.target.value)} />
-                          ${loginError && html`<p className="text-red-500 text-xs mt-4 font-black text-center uppercase tracking-widest animate-pulse">Credentials Denied</p>`}
+                    <form onSubmit=${handleLoginSubmit} className="p-12 space-y-10">
+                        <div className="space-y-4">
+                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Console Key</label>
+                          <input type="password" autoFocus className="w-full px-10 py-6 bg-slate-50 border-4 border-slate-100 rounded-[2rem] outline-none focus:border-indigo-500 transition-all font-mono text-center text-3xl tracking-[0.5em] shadow-inner" placeholder="••••" value=${passwordInput} onChange=${(e) => setPasswordInput(e.target.value)} />
+                          ${loginError && html`<p className="text-rose-500 text-[10px] font-black text-center uppercase tracking-widest animate-shake">Identity Verification Failed</p>`}
                         </div>
-                        <button type="submit" className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 uppercase tracking-widest active:scale-95">Open Session</button>
+                        <div className="flex flex-col gap-4">
+                          <button type="submit" className="w-full bg-slate-900 text-white font-black py-6 rounded-[2rem] hover:bg-indigo-600 transition-all shadow-2xl shadow-slate-200 uppercase tracking-widest active:scale-95 text-lg">Initialize Session</button>
+                          <button type="button" onClick=${() => setShowLoginModal(false)} className="w-full text-slate-400 font-bold py-2 text-xs uppercase tracking-widest hover:text-slate-600">Cancel Access Request</button>
+                        </div>
                     </form>
                 </div>
             </div>

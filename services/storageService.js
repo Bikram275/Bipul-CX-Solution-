@@ -29,10 +29,16 @@ export const saveSOP = async (sop) => {
 };
 
 export const deleteSOP = async (id) => {
-  const sops = await getSOPs();
-  const filtered = sops.filter(s => s.id !== id);
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filtered));
-  return true;
+  try {
+    const sops = await getSOPs();
+    const filtered = sops.filter(s => s.id !== id);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filtered));
+    console.log(`Deleted entry with ID: ${id}`);
+    return true;
+  } catch (error) {
+    console.error("Delete operation failed", error);
+    return false;
+  }
 };
 
 export const importSOPs = async (jsonString) => {
